@@ -28,7 +28,10 @@ Time-Formatter: "yyyy-MM-dd HH:mm:ss"
 File-Deletion: 7
 
 # Log to Files
-Log-to-Files: true
+Log-to-Files: false
+
+Log-to-Stdout: true
+
 
 # This will log players with the "loggerproxy.staff.log" permission node in their own folder / file
 Staff:

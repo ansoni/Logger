@@ -1,5 +1,6 @@
 package me.prism3.loggerbungeecord.events.oncommands;
 
+import com.google.gson.JsonObject;
 import me.prism3.loggerbungeecord.Main;
 import me.prism3.loggerbungeecord.database.external.ExternalData;
 import me.prism3.loggerbungeecord.database.sqlite.SQLiteData;
@@ -53,6 +54,16 @@ public class OnCommand implements Listener {
                 new OnCommandWhitelist().onWhitelistedCommand(event);
 
                 return;
+            }
+
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "leave" );
+                json.addProperty("server", server );
+                json.addProperty("player", playerName);
+                json.addProperty("command", command);
+                System.out.println(json.toString());
             }
 
             // Log To Files

@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -37,6 +38,18 @@ public class OnPlayerLevel implements Listener {
 
             if (playerLevel == logAbove) {
 
+                final String server = player.getServer().getName();
+
+                if (Data.isLogToStdout) {
+                    JsonObject json = new JsonObject();
+                    json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                    json.addProperty("action", "leave" );
+                    json.addProperty("server", server );
+                    json.addProperty("level", playerLevel);
+                    json.addProperty("player", playerName);
+
+                    System.out.println(json.toString());
+                }
                 // Log To Files
                 if (Data.isLogToFiles) {
 

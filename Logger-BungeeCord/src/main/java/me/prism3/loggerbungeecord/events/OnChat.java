@@ -1,5 +1,6 @@
 package me.prism3.loggerbungeecord.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.loggerbungeecord.Main;
 import me.prism3.loggerbungeecord.database.external.ExternalData;
 import me.prism3.loggerbungeecord.database.sqlite.SQLiteData;
@@ -32,8 +33,17 @@ public class OnChat implements Listener {
             final String server = player.getServer().getInfo().getName();
             final String message = event.getMessage().replace("\\", "\\\\");
 
-            // Log To Files
-            if (Data.isLogToFiles) {
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "chat" );
+                json.addProperty("server", server );
+                json.addProperty("player", player.getName());
+                json.addProperty("message", message);
+                System.out.println(json.toString());
+            }
+            if (Data.isLogToFiles) {            // Log To Files
+
 
                 if (Data.isStaffEnabled && player.hasPermission(Data.loggerStaffLog)) {
 

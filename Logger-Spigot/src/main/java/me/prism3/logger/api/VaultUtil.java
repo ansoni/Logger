@@ -1,6 +1,7 @@
 package me.prism3.logger.api;
 
-import net.milkbowl.vault.economy.Economy;
+
+import com.earth2me.essentials.api.Economy;
 import org.bukkit.plugin.RegisteredServiceProvider;
 
 import static org.bukkit.Bukkit.getServer;

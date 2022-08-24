@@ -1,5 +1,6 @@
 package me.prism3.loggerbungeecord.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.loggerbungeecord.Main;
 import me.prism3.loggerbungeecord.database.external.ExternalData;
 import me.prism3.loggerbungeecord.database.sqlite.SQLiteData;
@@ -31,10 +32,20 @@ public class OnLogin implements Listener {
             if (player.hasPermission(Data.loggerExempt)) return;
 
             final String playerName = player.getName();
+            final String server = player.getServer().getInfo().getName();
             InetSocketAddress playerIP = (InetSocketAddress) event.getPlayer().getSocketAddress();
 
             if (!Data.isPlayerIP) playerIP = null;
 
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "login" );
+                json.addProperty("server", server );
+                json.addProperty("player", playerName);
+                json.addProperty("ip", playerIP.toString());
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

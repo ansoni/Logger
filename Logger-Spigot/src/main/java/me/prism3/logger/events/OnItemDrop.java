@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -58,6 +59,24 @@ public class OnItemDrop implements Listener {
 
                 enchs.add(FriendlyEnchants.getFriendlyEnchantment(ench).getFriendlyName());
 
+            }
+
+            final String server = player.getServer().getName();
+
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "item drop" );
+                json.addProperty("server", server );
+                json.addProperty("world", worldName );
+                json.addProperty("x", blockX );
+                json.addProperty("y", blockY );
+                json.addProperty("y", blockZ );
+                json.addProperty("player", playerName);
+                json.addProperty("itemName", String.valueOf(itemName));
+                json.addProperty("count", amount);
+
+                System.out.println(json.toString());
             }
 
             // Log To Files

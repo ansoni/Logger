@@ -16,7 +16,7 @@ public class onServerSwitch implements Listener {
 
     @EventHandler
     public void onServerSwitch(ServerSwitchEvent event) {
-        Player player = event.getPlayer();
+        ProxiedPlayer player = event.getPlayer();
 
         // If the player just joined, and DIDN'T switched from server.
         if (event.getFrom() == null) {
@@ -28,17 +28,17 @@ public class onServerSwitch implements Listener {
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                Server from = event.getPlayer().getServer().getInfo().getName()
-                Server destination = event.getPlayer().getServer().getInfo().getName();
+                Server from = event.getPlayer().getServer();
+                Server destination = event.getPlayer().getServer();
 
                 // I only did discord for now
 
                 // Discord Integration
                 if (!player.hasPermission(Data.loggerExemptDiscord)) {
+/*
 
                     if (Data.isStaffEnabled && player.hasPermission(Data.loggerStaffLog)) {
-
-                        if (!this.main.getMessages().getString("Discord.Player-ServerSwitch-Staff").isEmpty()) {
+                        if (! this.main.getMessages().getString("Discord.Player-ServerSwitch-Staff").isEmpty()) {
 
                             this.main.getDiscord().staffChat(player, Objects.requireNonNull(this.main.getMessages().getString("Discord.Player-ServerSwitch-Staff")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%from%", from).replace("%destination%", destination), false);
 
@@ -50,8 +50,10 @@ public class onServerSwitch implements Listener {
                             this.main.getDiscord().playerChat(player, Objects.requireNonNull(this.main.getMessages().getString("Discord.Player-ServerSwitch")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%from%", from).replace("%destination%", destination), false);
                         }
                     }
-                }
 
+
+ */
+                    }
             }
         }, 0, 500); // 0,5s
     }

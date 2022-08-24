@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -13,10 +14,12 @@ import org.bukkit.World;
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 import org.bukkit.inventory.ItemStack;
 
@@ -26,14 +29,27 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.time.ZonedDateTime;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 import static me.prism3.logger.utils.Data.isPlayerDeathBackup;
 
 public class OnPlayerDeath implements Listener {
 
+    private Map<Player, Entity> killers = new HashMap();
     private final Main main = Main.getInstance();
     private final PlayerFolder playerDeathBackup = new PlayerFolder();
+
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onEntityDamageByEntityEvent(final EntityDamageByEntityEvent event) {
+        final Entity attacker = event.getDamager();
+        final Entity defender = event.getEntity();
+        if (defender instanceof Player) {
+            Player player = (Player)defender;
+            killers.put(player, attacker);
+        }
+    }
 
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onDeath(final PlayerDeathEvent event) throws IOException, InvalidConfigurationException {
@@ -76,7 +92,7 @@ public class OnPlayerDeath implements Listener {
             final int z = player.getLocation().getBlockZ();
             final int playerLevel = player.getLevel();
             String cause = Objects.requireNonNull(player.getLastDamageCause()).getCause().name().replace("\\", "\\\\");
-            String killer = "";
+            String killer = killers.containsKey(player) ? killers.get(player).getName() : "";
 
             if (player.getKiller() != null) {
 
@@ -88,6 +104,22 @@ public class OnPlayerDeath implements Listener {
 
             }
 
+            final String server = player.getServer().getName();
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "death" );
+                json.addProperty("server", server );
+                json.addProperty("world", worldName );
+                json.addProperty("x", x );
+                json.addProperty("y", y );
+                json.addProperty("y", z );
+                json.addProperty("cause", cause);
+                json.addProperty("killer", killer);
+                json.addProperty("level", playerLevel);
+                json.addProperty("player", player.getName());
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

@@ -1,5 +1,6 @@
 package me.prism3.loggerbungeecord.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.loggerbungeecord.Main;
 import me.prism3.loggerbungeecord.database.external.ExternalData;
 import me.prism3.loggerbungeecord.database.sqlite.SQLiteData;
@@ -13,6 +14,7 @@ import net.md_5.bungee.event.EventHandler;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.time.ZonedDateTime;
 import java.util.Objects;
 
@@ -30,6 +32,9 @@ public class OnLeave implements Listener {
             if (player.hasPermission(Data.loggerExempt)) return;
 
             String playerName = player.getName();
+            final String server = player.getServer().getInfo().getName();
+            InetSocketAddress playerIP = (InetSocketAddress) event.getPlayer().getSocketAddress();
+
 
             // This resolves an error showing up if the targeted server is offline whist connecting
             if (player.getServer() == null) return;
@@ -38,6 +43,15 @@ public class OnLeave implements Listener {
 
             if (player.getServer() == null || playerServerName == null) return;
 
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "leave" );
+                json.addProperty("server", server );
+                json.addProperty("player", playerName);
+                json.addProperty("ip", playerIP.toString());
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

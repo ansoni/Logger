@@ -1,5 +1,7 @@
 package me.prism3.logger.events.plugindependent;
 
+import com.earth2me.essentials.api.Economy;
+import com.earth2me.essentials.api.UserDoesNotExistException;
 import me.prism3.logger.Main;
 import me.prism3.logger.api.VaultUtil;
 import me.prism3.logger.database.external.ExternalData;
@@ -7,7 +9,6 @@ import me.prism3.logger.database.sqlite.global.SQLiteData;
 import me.prism3.logger.utils.BedrockChecker;
 import me.prism3.logger.utils.Data;
 import me.prism3.logger.utils.FileHandler;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -38,33 +39,65 @@ public class OnVault implements Listener, Runnable {
 
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
 
-                if (player.hasPermission(Data.loggerExempt) || Bukkit.getOnlinePlayers().isEmpty() || BedrockChecker.isBedrock(player.getUniqueId())) return;
+                if (player.hasPermission(Data.loggerExempt) || Bukkit.getOnlinePlayers().isEmpty() || BedrockChecker.isBedrock(player.getUniqueId()))
+                    return;
 
                 for (Map.Entry<UUID, Double> bal : this.players.entrySet()) {
 
                     final String playerName = player.getName();
 
-                    if (this.econ.getBalance(player.getPlayer()) != this.players.get(player.getUniqueId())) {
-
+                    try {
+                        double currentBalance = Economy.getMoneyExact(player.getUniqueId()).doubleValue();
                         double oldBalance = bal.getValue();
-                        this.players.put(player.getUniqueId(), this.econ.getBalance(player.getPlayer()));
+                        this.players.put(player.getUniqueId(), currentBalance);
                         double newBalance = bal.getValue();
+                        if (currentBalance != this.players.get(player.getUniqueId())) {
 
-                        // Log To Files
-                        if (Data.isLogToFiles) {
 
-                            if (Data.isStaffEnabled && player.hasPermission(Data.loggerStaffLog)) {
+                            // Log To Files
+                            if (Data.isLogToFiles) {
 
-                                if (!Objects.requireNonNull(this.main.getMessages().get().getString("Discord.Extras.Vault-Staff")).isEmpty()) {
+                                if (Data.isStaffEnabled && player.hasPermission(Data.loggerStaffLog)) {
 
-                                    this.main.getDiscord().staffChat(player, Objects.requireNonNull(this.main.getMessages().get().getString("Discord.Extras.Vault-Staff")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%player%", playerName).replace("%oldbal%", String.valueOf(oldBalance)).replace("%newbal%", String.valueOf(newBalance)), false);
+                                    if (!Objects.requireNonNull(this.main.getMessages().get().getString("Discord.Extras.Vault-Staff")).isEmpty()) {
+
+                                        this.main.getDiscord().staffChat(player, Objects.requireNonNull(this.main.getMessages().get().getString("Discord.Extras.Vault-Staff")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%player%", playerName).replace("%oldbal%", String.valueOf(oldBalance)).replace("%newbal%", String.valueOf(newBalance)), false);
+
+                                    }
+
+                                    try {
+
+                                        BufferedWriter out = new BufferedWriter(new FileWriter(FileHandler.getStaffFile(), true));
+                                        out.write(Objects.requireNonNull(this.main.getMessages().get().getString("Files.Extras.Vault-Staff")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%player%", playerName).replace("%oldbal%", String.valueOf(oldBalance)).replace("%newbal%", String.valueOf(newBalance)) + "\n");
+                                        out.close();
+
+                                    } catch (IOException e) {
+
+                                        this.main.getServer().getLogger().warning("An error occurred while logging into the appropriate file.");
+                                        e.printStackTrace();
+
+                                    }
+
+                                    if (Data.isExternal && this.main.getExternal().isConnected()) {
+
+                                        ExternalData.vault(Data.serverName, player, oldBalance, newBalance, true);
+
+                                    }
+
+                                    if (Data.isSqlite && this.main.getSqLite().isConnected()) {
+
+                                        SQLiteData.insertVault(Data.serverName, player, oldBalance, newBalance, true);
+
+                                    }
+
+                                    return;
 
                                 }
 
                                 try {
 
-                                    BufferedWriter out = new BufferedWriter(new FileWriter(FileHandler.getStaffFile(), true));
-                                    out.write(Objects.requireNonNull(this.main.getMessages().get().getString("Files.Extras.Vault-Staff")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%player%", playerName).replace("%oldbal%", String.valueOf(oldBalance)).replace("%newbal%", String.valueOf(newBalance)) + "\n");
+                                    BufferedWriter out = new BufferedWriter(new FileWriter(FileHandler.getVaultFile(), true));
+                                    out.write(Objects.requireNonNull(this.main.getMessages().get().getString("Files.Extras.Vault")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%player%", playerName).replace("%oldbal%", String.valueOf(oldBalance)).replace("%newbal%", String.valueOf(newBalance)) + "\n");
                                     out.close();
 
                                 } catch (IOException e) {
@@ -73,34 +106,6 @@ public class OnVault implements Listener, Runnable {
                                     e.printStackTrace();
 
                                 }
-
-                                if (Data.isExternal && this.main.getExternal().isConnected()) {
-
-                                    ExternalData.vault(Data.serverName, player, oldBalance, newBalance, true);
-
-                                }
-
-                                if (Data.isSqlite && this.main.getSqLite().isConnected()) {
-
-                                    SQLiteData.insertVault(Data.serverName, player, oldBalance, newBalance, true);
-
-                                }
-
-                                return;
-
-                            }
-
-                            try {
-
-                                BufferedWriter out = new BufferedWriter(new FileWriter(FileHandler.getVaultFile(), true));
-                                out.write(Objects.requireNonNull(this.main.getMessages().get().getString("Files.Extras.Vault")).replace("%time%", Data.dateTimeFormatter.format(ZonedDateTime.now())).replace("%player%", playerName).replace("%oldbal%", String.valueOf(oldBalance)).replace("%newbal%", String.valueOf(newBalance)) + "\n");
-                                out.close();
-
-                            } catch (IOException e) {
-
-                                this.main.getServer().getLogger().warning("An error occurred while logging into the appropriate file.");
-                                e.printStackTrace();
-
                             }
                         }
 
@@ -131,7 +136,9 @@ public class OnVault implements Listener, Runnable {
 
                                 ExternalData.vault(Data.serverName, player, oldBalance, newBalance, player.hasPermission(Data.loggerStaffLog));
 
-                            } catch (Exception e) { e.printStackTrace(); }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
                         }
 
                         // External
@@ -141,18 +148,25 @@ public class OnVault implements Listener, Runnable {
 
                                 SQLiteData.insertVault(Data.serverName, player, oldBalance, newBalance, player.hasPermission(Data.loggerStaffLog));
 
-                            } catch (Exception exception) { exception.printStackTrace(); }
+                            } catch (Exception exception) {
+                                exception.printStackTrace();
+                            }
                         }
+                    } catch (UserDoesNotExistException udnee) {
+
                     }
                 }
             }
         }
     }
 
+
     @EventHandler(priority = EventPriority.HIGHEST)
     private void onJoin(final PlayerJoinEvent event) {
-
-        this.players.put(event.getPlayer().getUniqueId(), this.econ.getBalance(event.getPlayer()));
+        try {
+            double currentBalance = Economy.getMoneyExact(event.getPlayer().getUniqueId()).doubleValue();
+            this.players.put(event.getPlayer().getUniqueId(), currentBalance);
+        } catch(Exception e) {};
 
     }
 

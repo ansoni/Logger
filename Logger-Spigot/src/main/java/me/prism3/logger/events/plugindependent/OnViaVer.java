@@ -9,7 +9,7 @@ public class OnViaVer {
 
     public void onConnect(Player player) {
 
-        ViaAPI via = Via.getAPI();
+        //ViaAPI via = Via.getAPI();
 
 //        System.out.println(via.getConnection(player.getUniqueId()).getProtocolInfo().getProtocolVersion());
 //        System.out.println(via.getConnection(player.getUniqueId()).getProtocolInfo().getServerProtocolVersion());

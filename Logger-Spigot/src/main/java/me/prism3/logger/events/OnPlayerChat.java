@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -36,7 +37,17 @@ public class OnPlayerChat implements Listener {
             final String worldName = world.getName();
             final String playerName = player.getName();
             final String msg = event.getMessage().replace("\\", "\\\\");
+            final String server = player.getServer().getName();
 
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "chat" );
+                json.addProperty("server", server );
+                json.addProperty("player", player.getName());
+                json.addProperty("message", msg);
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

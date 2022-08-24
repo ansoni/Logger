@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -62,9 +63,18 @@ private final Main main = Main.getInstance();
                         final ItemMeta meta = item.getItemMeta();
 
                         if (meta != null && meta.hasDisplayName()) {
+                            final String server = player.getServer().getName();
 
                             final String displayName = meta.getDisplayName().replace("\\", "\\\\");
-
+                            if (Data.isLogToStdout) {
+                                JsonObject json = new JsonObject();
+                                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                                json.addProperty("action", "anvil" );
+                                json.addProperty("server", server );
+                                json.addProperty("player", player.getName());
+                                json.addProperty("message", "renamed " + displayName);
+                                System.out.println(json.toString());
+                            }
                             // Log To Files
                             if (Data.isLogToFiles) {
 

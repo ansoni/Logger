@@ -40,6 +40,7 @@ public class Data {
     // Boolean
     public static boolean isExternal;
     public static boolean isSqlite;
+    public static boolean isLogToStdout;
     public static boolean isLogToFiles;
     public static boolean isStaffEnabled;
     public static boolean isWhitelisted;
@@ -105,6 +106,7 @@ public class Data {
 
         isExternal = this.config.getBoolean("Database.Enable");
         isSqlite = this.config.getBoolean("SQLite.Enable");
+        isLogToStdout = this.config.getBoolean("Log-to-Stdout");
         isLogToFiles = this.config.getBoolean("Log-to-Files");
         isStaffEnabled = this.config.getBoolean("Staff.Enabled");
         isWhitelisted = this.config.getBoolean("Player-Commands.Whitelist-Commands");

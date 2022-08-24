@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -45,6 +46,20 @@ public class OnEntityDeath implements Listener {
             final int y = entity.getLocation().getBlockY();
             final int z = entity.getLocation().getBlockZ();
 
+            final String server = player.getServer().getName();
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "kill" );
+                json.addProperty("server", server );
+                json.addProperty("world", worldName );
+                json.addProperty("x", x );
+                json.addProperty("y", y );
+                json.addProperty("y", z );
+                json.addProperty("player", playerName);
+                json.addProperty("mob", entityName);
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

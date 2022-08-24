@@ -17,7 +17,8 @@ Server-Name: "Server_Name"
 Plugin-Prefix: "&bLogger &8&l| &r "
 Time-Formatter: "yyyy-MM-dd HH:mm:ss"
 File-Deletion: 7
-Log-to-Files: true
+Log-to-Stdout: true
+Log-to-Files: false
 Staff:
   Enabled: false
 Log-Player:

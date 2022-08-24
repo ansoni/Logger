@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -30,7 +31,7 @@ public class OnPlayerJoin implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onJoin(final PlayerJoinEvent event) {
 
-        new OnViaVer().onConnect(event.getPlayer());
+        //new OnViaVer().onConnect(event.getPlayer());
 
         if (Data.isRegistration && !SQLiteDataRegistration.playerExists(event.getPlayer())) {
 
@@ -52,6 +53,8 @@ public class OnPlayerJoin implements Listener {
             final int x = player.getLocation().getBlockX();
             final int y = player.getLocation().getBlockY();
             final int z = player.getLocation().getBlockZ();
+            final String server = player.getServer().getName();
+
 
             if (Data.isCommandsToBlock && Data.isCommandsToLog && player.hasPermission(Data.loggerStaff)) {
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&',
@@ -61,7 +64,19 @@ public class OnPlayerJoin implements Listener {
             }
 
             if (!Data.isPlayerIP) ip = null;
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "join" );
+                json.addProperty("server", server );
+                json.addProperty("world", worldName );
+                json.addProperty("x", x );
+                json.addProperty("y", y );
+                json.addProperty("y", z );
 
+                json.addProperty("player", player.getName());
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

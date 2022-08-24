@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -40,7 +41,22 @@ public class OnBlockPlace implements Listener {
             final int y = event.getBlock().getLocation().getBlockY();
             final int z = event.getBlock().getLocation().getBlockZ();
             final Material blockType = event.getBlock().getType();
+            final String server = player.getServer().getName();
 
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "block place" );
+                json.addProperty("server", server );
+                json.addProperty("world", worldName );
+                json.addProperty("x", x );
+                json.addProperty("y", y );
+                json.addProperty("y", z );
+                json.addProperty("block", String.valueOf(blockType));
+
+                json.addProperty("player", player.getName());
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

@@ -1,5 +1,6 @@
 package me.prism3.logger.events;
 
+import com.google.gson.JsonObject;
 import me.prism3.logger.Main;
 import me.prism3.logger.database.external.ExternalData;
 import me.prism3.logger.database.sqlite.global.SQLiteData;
@@ -36,7 +37,7 @@ public class OnItemPickup implements Listener {
 
             final String playerName = player.getName();
             final Material item = event.getItem().getItemStack().getType();
-            String itemName = Objects.requireNonNull(event.getItem().getItemStack().getItemMeta()).getDisplayName();
+            String itemName = Objects.requireNonNull(event.getItem().getName());
 
             if (itemName != null) {
 
@@ -50,7 +51,22 @@ public class OnItemPickup implements Listener {
             final int blockX = event.getItem().getLocation().getBlockX();
             final int blockY = event.getItem().getLocation().getBlockY();
             final int blockZ = event.getItem().getLocation().getBlockZ();
+            final String server = player.getServer().getName();
 
+            if (Data.isLogToStdout) {
+                JsonObject json = new JsonObject();
+                json.addProperty("time", Data.dateTimeFormatter.format(ZonedDateTime.now()));
+                json.addProperty("action", "item pickup" );
+                json.addProperty("server", server );
+                json.addProperty("world", worldName );
+                json.addProperty("x", blockX );
+                json.addProperty("y", blockY );
+                json.addProperty("y", blockZ );
+                json.addProperty("player", playerName);
+                json.addProperty("itemName", itemName);
+                json.addProperty("count", amount);
+                System.out.println(json.toString());
+            }
             // Log To Files
             if (Data.isLogToFiles) {
 

@@ -51,6 +51,7 @@ public class Data {
     public static long fileDeletion;
 
     // Boolean
+    public static boolean isLogToStdout;
     public static boolean isLogToFiles;
     public static boolean isUpdateChecker;
     public static boolean isExternal;
@@ -132,6 +133,7 @@ public class Data {
 
     public void initializeBooleans() {
 
+        isLogToStdout = this.main.getConfig().getBoolean("Log-to-Stdout");
         isLogToFiles = this.main.getConfig().getBoolean("Log-to-Files");
         isUpdateChecker = this.main.getConfig().getBoolean("Update-Checker");
         isExternal = this.main.getConfig().getBoolean("Database.Enable");
